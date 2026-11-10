@@ -22,6 +22,26 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+def today() -> date:
+    """Return today's date (computed at call time, not import time)."""
+    return date.today()
+
+
+def tomorrow() -> date:
+    """Return tomorrow's date (computed at call time, not import time)."""
+    return date.today() + timedelta(days=1)
+
+
+def scrape_dates() -> list[date]:
+    """Return [today, tomorrow] computed at call time."""
+    return [today(), tomorrow()]
+
+
+# ---------------------------------------------------------------------------
+# Discovered Swiftbet (Apollo / Betmakers) platform endpoints
+# ---------------------------------------------------------------------------
+
 # ---------------------------------------------------------------------------
 # Discovered Swiftbet (Apollo / Betmakers) platform endpoints
 # ---------------------------------------------------------------------------
@@ -41,10 +61,8 @@ APPSYNC_API_KEY = os.getenv("SWIFTBET_APPSYNC_API_KEY")
 
 # ---------------------------------------------------------------------------
 # Dates to cover: today and tomorrow (per the assignment requirement)
+# Computed at call time via today()/tomorrow()/scrape_dates().
 # ---------------------------------------------------------------------------
-TODAY: date = date.today()
-TOMORROW: date = TODAY + timedelta(days=1)
-SCRAPE_DATES = [TODAY, TOMORROW]
 
 # ---------------------------------------------------------------------------
 # Output files & DataFrame column contracts
@@ -105,9 +123,9 @@ __all__ = [
     "RACING_GRAPHQL_URL",
     "MEETINGS_ASSETS_URL",
     "APPSYNC_API_KEY",
-    "TODAY",
-    "TOMORROW",
-    "SCRAPE_DATES",
+    "today",
+    "tomorrow",
+    "scrape_dates",
     "DATA_DIR",
     "RACES_CSV",
     "BETS_CSV",

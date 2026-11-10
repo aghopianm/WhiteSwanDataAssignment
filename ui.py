@@ -18,7 +18,7 @@ from __future__ import annotations
 import os
 
 import pandas as pd
-from flask import Flask, redirect, render_template_string, request, url_for
+from flask import Flask, redirect, render_template_string, url_for
 
 from config import BETS_CSV, DATA_DIR, RACES_CSV
 from scraper import SwiftbetAuthError, scrape_races
@@ -34,7 +34,7 @@ PAGE = """
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>White Swan Data Assignment &mdash; Swiftbet Racing</title>
+<title>Swiftbet Racing Data &mdash; Dashboard</title>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
          margin: 0; background: #f4f5f7; color: #1a1a1a; }
@@ -68,7 +68,7 @@ PAGE = """
 </head>
 <body>
 <header>
-  <h1>White Swan Data Assignment &mdash; Swiftbet Racing</h1>
+  <h1>Swiftbet Racing Data &mdash; Dashboard</h1>
   <p>Challenge 1: races &bull; Challenge 2: performed bets &bull; Challenge 3: this UI</p>
 </header>
 <div class="container">
@@ -101,7 +101,7 @@ def _read_csv(path):
         return None
 
 
-def _df_html(df, title):
+def _df_html(df, title, source_label):
     if df is None or df.empty:
         return f"""
         <div class="card"><h2>{title}</h2>
@@ -117,7 +117,7 @@ def _df_html(df, title):
     <div class="card">
       <h2>{title} <span class="badge">{len(df)} rows</span></h2>
       {html}
-      <p class="muted">Source: <code>{'data/df_races_data.csv' if 'df_races_data' in title else 'data/df_performed_bets.csv'}</code></p>
+      <p class="muted">Source: <code>{source_label}</code></p>
     </div>"""
 
 
@@ -129,7 +129,10 @@ def index():
 @app.route("/races")
 def races():
     df = _read_csv(RACES_CSV)
-    content = _df_html(df, "Races &mdash; df_races_data") if df is not None else """
+    if df is not None:
+        content = _df_html(df, "Races &mdash; df_races_data", "data/df_races_data.csv")
+    else:
+        content = """
     <div class="card"><h2>Races &mdash; df_races_data</h2>
     <div class="empty">
       No races data yet. Run Challenge 1 first: <code>python3 -m scraper</code> (live)
@@ -141,7 +144,10 @@ def races():
 @app.route("/bets")
 def bets():
     df = _read_csv(BETS_CSV)
-    content = _df_html(df, "Performed Bets &mdash; df_performed_bets") if df is not None else """
+    if df is not None:
+        content = _df_html(df, "Performed Bets &mdash; df_performed_bets", "data/df_performed_bets.csv")
+    else:
+        content = """
     <div class="card"><h2>Performed Bets &mdash; df_performed_bets</h2>
     <div class="empty">
       No performed-bets data yet. Run Challenge 2 first:

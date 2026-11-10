@@ -22,21 +22,16 @@ from datetime import datetime
 from typing import Optional
 
 import pandas as pd
-import requests
 
 from config import (
     APPSYNC_API_KEY,
     BETS_COLUMNS,
     BETS_CSV,
     DATA_DIR,
-    DEFAULT_HEADERS,
     RACES_CSV,
-    RACING_GRAPHQL_URL,
     SwiftbetAuthError,
 )
-from scraper import SwiftbetGraphQLClient
-
-REQUEST_TIMEOUT = 30
+from scraper import SwiftbetGraphQLClient, SwiftbetGraphQLError
 
 
 def now_iso() -> str:
@@ -74,6 +69,29 @@ def select_random_race(df_races: pd.DataFrame) -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# GraphQL operation template (race card / market prices)
+# ---------------------------------------------------------------------------
+QUERY_RACE_CARD = """
+query RaceCard($meetingSlug: String!, $raceSlug: String!) {
+  raceCard(meetingSlug: $meetingSlug, raceSlug: $raceSlug) {
+    raceNumber
+    raceSlug
+    status
+    runners {
+      runnerId
+      name
+      tabNo
+      silkUrl
+      marketPrice
+      marketType
+      lastStart
+    }
+  }
+}
+"""
+
+
 def navigate_to_race(client: SwiftbetGraphQLClient, choice: dict) -> dict:
     """
     Human-like navigation to the chosen race.
@@ -100,40 +118,13 @@ def navigate_to_race(client: SwiftbetGraphQLClient, choice: dict) -> dict:
             query=QUERY_RACE_CARD,
             variables={"meetingSlug": meeting_slug, "raceSlug": race_slug},
         )
-    except SwiftbetAuthError:
-        raise
-    except Exception as exc:  # noqa: BLE001
+    except SwiftbetGraphQLError as exc:
         raise SwiftbetAuthError(
             f"Failed to load race card for {meeting_slug}/{race_slug}: {exc}"
         ) from exc
 
-    race_card = (
-        data.get("raceCard") or data.get("race") or {}
-    )
+    race_card = data.get("raceCard") or data.get("race") or {}
     return race_card
-
-
-# ---------------------------------------------------------------------------
-# GraphQL operation template (race card / market prices)
-# ---------------------------------------------------------------------------
-QUERY_RACE_CARD = """
-query RaceCard($meetingSlug: String!, $raceSlug: String!) {
-  raceCard(meetingSlug: $meetingSlug, raceSlug: $raceSlug) {
-    raceNumber
-    raceSlug
-    status
-    runners {
-      runnerId
-      name
-      tabNo
-      silkUrl
-      marketPrice
-      marketType
-      lastStart
-    }
-  }
-}
-"""
 
 
 # ---------------------------------------------------------------------------
@@ -157,7 +148,9 @@ def run_bot(api_key: Optional[str] = None) -> pd.DataFrame:
     df_races = load_races()
     choice = select_random_race(df_races)
 
-    print(f"[bot] Selected race: {choice['track_name']} - Race {choice['race_number']}")
+    track_name = choice.get("track_name") or "unknown track"
+    race_number = choice.get("race_number") or "?"
+    print(f"[bot] Selected race: {track_name} - Race {race_number}")
 
     race_card = navigate_to_race(client, choice)
     runners = race_card.get("runners", []) or []
@@ -182,8 +175,6 @@ def run_bot(api_key: Optional[str] = None) -> pd.DataFrame:
         })
 
     df_performed_bets = pd.DataFrame(rows, columns=BETS_COLUMNS)
-
-    import os
 
     os.makedirs(DATA_DIR, exist_ok=True)
     df_performed_bets.to_csv(BETS_CSV, index=False)

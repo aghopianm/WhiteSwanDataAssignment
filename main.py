@@ -1,5 +1,5 @@
 """
-White Swan Data Assignment &mdash; entry point.
+Swiftbet racing scraper, bet bot, and local Flask UI entry point.
 
 Usage:
     python3 main.py scrape    # Challenge 1: scrape races -> df_races_data.csv
@@ -68,6 +68,6 @@ def main(argv: list[str] | None = None) -> int:
 if __name__ == "__main__":
     # Credentials hint
     if not APPSYNC_API_KEY:
-        print("Note: SWIFTBET_APPSYNC_API_KEY not set &mdash; live mode will "
+        print("Note: SWIFTBET_APPSYNC_API_KEY not set - live mode will "
               "report an auth error (expected without credentials).")
     raise SystemExit(main())
