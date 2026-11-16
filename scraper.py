@@ -253,7 +253,6 @@ def scrape_races(api_key: Optional[str] = None) -> pd.DataFrame:
 
     df_races_data = pd.DataFrame(rows, columns=RACES_COLUMNS)
 
-    # Persist to CSV.
     os.makedirs(DATA_DIR, exist_ok=True)
     df_races_data.to_csv(RACES_CSV, index=False)
     return df_races_data

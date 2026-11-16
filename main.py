@@ -66,7 +66,6 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    # Credentials hint
     if not APPSYNC_API_KEY:
         print("Note: SWIFTBET_APPSYNC_API_KEY not set - live mode will "
               "report an auth error (expected without credentials).")

@@ -106,7 +106,6 @@ def _df_html(df, title, source_label):
         return f"""
         <div class="card"><h2>{title}</h2>
         <div class="empty">No data available.</div></div>"""
-    # Show a safe, relevant subset of columns for readability.
     bet_cols = ("horse_name", "runner_id", "tab_no", "market_price", "market_type")
     race_cols = ("meeting_date", "track_name", "race_number", "race_time",
                  "minutes_to_start", "race_status", "race_url")

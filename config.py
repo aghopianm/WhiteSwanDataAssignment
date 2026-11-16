@@ -38,13 +38,6 @@ def scrape_dates() -> list[date]:
     return [today(), tomorrow()]
 
 
-# ---------------------------------------------------------------------------
-# Discovered Swiftbet (Apollo / Betmakers) platform endpoints
-# ---------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------
-# Discovered Swiftbet (Apollo / Betmakers) platform endpoints
-# ---------------------------------------------------------------------------
 SWIFTBET_RACING_PAGE = "https://www.swiftbet.com.au/racing"
 RACING_GRAPHQL_URL = os.getenv(
     "SWIFTBET_RACING_GRAPHQL_URL",
